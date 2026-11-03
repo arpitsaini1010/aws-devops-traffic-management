@@ -1,0 +1,13 @@
+{
+  "name": "aws-devops-traffic-management",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Docker-free Node.js demo app for AWS DevOps, load balancing and monitoring",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

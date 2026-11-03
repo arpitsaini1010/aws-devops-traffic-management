@@ -1,0 +1,18 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - echo "Checking Node.js runtime"
+      - node --version
+  build:
+    commands:
+      - echo "Validating project files"
+      - test -f server.js
+      - test -f appspec.yml
+      - test -f scripts/install.sh
+      - node --check server.js
+      - echo "Build validation completed"
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: no
