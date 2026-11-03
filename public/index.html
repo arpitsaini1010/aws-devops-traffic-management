@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AWS Traffic Management Dashboard</title>
+<style>
+:root{font-family:Inter,Arial,sans-serif;color:#e8eefc;background:#0b1220}
+*{box-sizing:border-box}body{margin:0;padding:32px;background:radial-gradient(circle at top right,#1b3760,#0b1220 45%)}
+main{max-width:1050px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+h1{font-size:clamp(26px,4vw,40px);margin:8px 0}.muted{color:#9fb0ca}.pill{border:1px solid #245b49;background:#12372f;color:#8df0c0;padding:8px 12px;border-radius:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:28px 0}
+.card{background:#121e31;border:1px solid #263852;border-radius:16px;padding:22px;box-shadow:0 12px 30px #0002}
+.label{color:#9fb0ca;font-size:13px;text-transform:uppercase;letter-spacing:1px}.value{font-size:25px;font-weight:700;margin-top:12px;overflow-wrap:anywhere}
+.panel{margin-top:16px}.row{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #263852}
+button{background:#2d75e8;color:white;border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer}
+code{color:#8fc5ff;overflow-wrap:anywhere}.footer{margin-top:24px;color:#8294ae;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div><div class="muted">AWS CLOUD • DEVOPS PROJECT</div><h1>Traffic Management Dashboard</h1><div class="muted">Live application and load-balancer visibility</div></div>
+    <div class="pill" id="health">● Checking server...</div>
+  </div>
+  <section class="grid">
+    <div class="card"><div class="label">Server status</div><div class="value" id="status">Loading</div></div>
+    <div class="card"><div class="label">Requests on this server</div><div class="value" id="requests">—</div></div>
+    <div class="card"><div class="label">Server / instance</div><div class="value" style="font-size:17px" id="instance">—</div></div>
+    <div class="card"><div class="label">Server uptime</div><div class="value" id="uptime">—</div></div>
+  </section>
+  <section class="card panel">
+    <div class="top"><div><h2 style="margin:0 0 6px">Instance details</h2><div class="muted">Refresh this page to generate another request</div></div><button onclick="loadStatus()">Refresh status</button></div>
+    <div class="row"><span class="muted">Hostname</span><code id="hostname">—</code></div>
+    <div class="row"><span class="muted">Operating system</span><code id="platform">—</code></div>
+    <div class="row"><span class="muted">Last updated</span><code id="updated">—</code></div>
+    <div class="row"><span class="muted">Health endpoint</span><code>/health</code></div>
+    <div class="row"><span class="muted">Status API</span><code>/api/status</code></div>
+  </section>
+  <div class="footer">Demo note: request count is per instance and resets when that Node.js process restarts. Load balancing is configured separately in AWS.</div>
+</main>
+<script>
+async function loadStatus(){
+  const health=document.getElementById('health');
+  try{
+    const r=await fetch('/api/status',{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    document.getElementById('status').textContent=d.status.toUpperCase();
+    document.getElementById('requests').textContent=d.totalRequestsOnThisInstance;
+    document.getElementById('instance').textContent=d.instanceId;
+    document.getElementById('uptime').textContent=Math.floor(d.uptimeSeconds/60)+' min';
+    document.getElementById('hostname').textContent=d.hostname;
+    document.getElementById('platform').textContent=d.platform;
+    document.getElementById('updated').textContent=new Date(d.timestamp).toLocaleString();
+    health.textContent='● Server healthy';
+  }catch(e){health.textContent='● Server unavailable';}
+}
+loadStatus();
+setInterval(loadStatus,5000);
+</script>
+</body>
+</html>
